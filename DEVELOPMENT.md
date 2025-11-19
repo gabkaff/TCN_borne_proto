@@ -5,13 +5,13 @@
 ### Installation
 
 ```bash
-npm install
+yarn install
 ```
 
 ### Lancer l'application en mode développement
 
 ```bash
-npm run tauri dev
+yarn tauri dev
 ```
 
 Cela lancera :
@@ -225,7 +225,7 @@ VITE_API_URL=https://votre-api.com/endpoint
 ### Windows (Borne tactile)
 
 ```bash
-npm run tauri build
+yarn tauri build
 ```
 
 Génère un `.exe` et un installeur dans `src-tauri/target/release/`.
@@ -236,10 +236,10 @@ Génère un `.exe` et un installeur dans `src-tauri/target/release/`.
 
 ```bash
 # Première fois : initialiser
-npm run tauri ios init
+yarn tauri ios init
 
 # Build
-npm run tauri ios build
+yarn tauri ios build
 ```
 
 ## 🐛 Debugging
@@ -254,7 +254,7 @@ En mode dev, ouvrez les DevTools :
 
 Les `console.log` dans le frontend apparaissent dans les DevTools.
 
-Les logs Rust apparaissent dans le terminal où vous avez lancé `npm run tauri dev`.
+Les logs Rust apparaissent dans le terminal où vous avez lancé `yarn tauri dev`.
 
 ### Inspecter le cache
 
@@ -314,6 +314,6 @@ Installez les dépendances Rust/Tauri selon votre OS :
 
 ### L'application ne démarre pas
 
-1. Vérifiez que les dépendances sont installées : `npm install`
+1. Vérifiez que les dépendances sont installées : `yarn install`
 2. Vérifiez le fichier `.env`
-3. Essayez de supprimer `node_modules` et `package-lock.json`, puis réinstallez
+3. Essayez de supprimer `node_modules` et `yarn.lock`, puis réinstallez

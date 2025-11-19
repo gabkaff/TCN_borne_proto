@@ -34,7 +34,7 @@ src/
 
 - Node.js 18+
 - Rust 1.70+
-- npm ou pnpm
+- Yarn
 
 Pour Windows (bornes tactiles) :
 - Visual Studio Build Tools
@@ -46,7 +46,7 @@ Pour iOS/iPadOS :
 ### Installation des dépendances
 
 ```bash
-npm install
+yarn install
 ```
 
 ## ⚙️ Configuration
@@ -69,32 +69,32 @@ VITE_REFRESH_INTERVAL=300000
 ### Mode développement
 
 ```bash
-npm run tauri dev
+yarn tauri dev
 ```
 
 ### Build pour production
 
 ```bash
-npm run tauri build
+yarn tauri build
 ```
 
 ### Build pour des plateformes spécifiques
 
 **Windows (borne tactile) :**
 ```bash
-npm run tauri build --target x86_64-pc-windows-msvc
+yarn tauri build --target x86_64-pc-windows-msvc
 ```
 
 **iOS/iPadOS :**
 ```bash
 # Initialiser le projet iOS (première fois)
-npm run tauri ios init
+yarn tauri ios init
 
 # Développement iOS
-npm run tauri ios dev
+yarn tauri ios dev
 
 # Build iOS
-npm run tauri ios build
+yarn tauri ios build
 ```
 
 ## 📱 Déploiement iPad (sans App Store)
