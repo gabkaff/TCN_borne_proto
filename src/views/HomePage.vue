@@ -66,13 +66,14 @@ const { isLoading, error, pagesList, meta } = storeToRefs(store);
 const loadData = async () => {
   try {
     store.setLoading(true);
-    const data = await apiService.fetchData();
-    store.setApiData(data);
+    let data = await apiService.fetchData();
 
     // Télécharge les assets si en mode borne
     if (appConfig.enableCache) {
-      await assetsService.downloadAllAssets(data);
+      data = await assetsService.downloadAllAssets(data);
     }
+
+    store.setApiData(data);
   } catch (err) {
     store.setError(err instanceof Error ? err.message : 'Une erreur est survenue');
   } finally {
@@ -83,12 +84,13 @@ const loadData = async () => {
 const refreshData = async () => {
   try {
     store.setLoading(true);
-    const data = await apiService.refresh();
-    store.setApiData(data);
+    let data = await apiService.refresh();
 
     if (appConfig.enableCache) {
-      await assetsService.downloadAllAssets(data);
+      data = await assetsService.downloadAllAssets(data);
     }
+
+    store.setApiData(data);
   } catch (err) {
     store.setError(err instanceof Error ? err.message : 'Erreur lors du rafraîchissement');
   } finally {
@@ -109,8 +111,14 @@ const formatDate = (timestamp: number) => {
 };
 
 onMounted(async () => {
-  // Initialise le service des assets
-  await assetsService.init();
+  // Initialise le service des assets uniquement en mode cache
+  if (appConfig.enableCache) {
+    try {
+      await assetsService.init();
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation du service des assets:', error);
+    }
+  }
   // Charge les données
   await loadData();
 });

@@ -69,7 +69,8 @@ class ApiService {
       console.log('🎭 Utilisation des données mock');
       // Simule un délai réseau
       await new Promise(resolve => setTimeout(resolve, 500));
-      return mockApiData;
+      // Retourne une copie profonde pour permettre les mutations
+      return JSON.parse(JSON.stringify(mockApiData));
     }
 
     const response = await tauriFetch(this.baseUrl, {

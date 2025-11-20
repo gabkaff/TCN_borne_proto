@@ -32,8 +32,8 @@ class AssetsService {
   /**
    * Télécharge et stocke tous les assets d'une réponse API
    */
-  async downloadAllAssets(apiData: ApiResponse): Promise<void> {
-    if (!this.enableCache) return;
+  async downloadAllAssets(apiData: ApiResponse): Promise<ApiResponse> {
+    if (!this.enableCache) return apiData;
 
     console.log('⬇️ Début du téléchargement des assets...');
     const downloadPromises: Promise<void>[] = [];
@@ -48,6 +48,8 @@ class AssetsService {
 
     await Promise.all(downloadPromises);
     console.log('✅ Tous les assets ont été téléchargés');
+
+    return apiData;
   }
 
   /**
@@ -157,7 +159,12 @@ class AssetsService {
   getAssetUrl(asset: MediaAsset): string {
     // En mode cache et si le chemin local existe
     if (this.enableCache && asset.localPath) {
-      return convertFileSrc(asset.localPath);
+      try {
+        return convertFileSrc(asset.localPath);
+      } catch (error) {
+        console.warn('Erreur lors de la conversion du chemin local, fallback sur URL distante:', error);
+        return asset.src;
+      }
     }
 
     // Sinon, utilise l'URL distante
