@@ -1,0 +1,121 @@
+{
+  "name": "Build Windows",
+  "ref_name": "refs/heads/main",
+  "trigger_time": "ON_EVERY_PUSH",
+  "priority": "NORMAL",
+  "fail_on_prepare_env_warning": false,
+  "auto_clear_cache": false,
+  "environment_variables": [
+    {
+      "key": "VITE_APP_MODE",
+      "value": "kiosk"
+    },
+    {
+      "key": "VITE_USE_MOCK_DATA",
+      "value": "false"
+    },
+    {
+      "key": "VITE_API_URL",
+      "value": "$VITE_API_URL"
+    },
+    {
+      "key": "VITE_REFRESH_INTERVAL",
+      "value": "300000"
+    }
+  ],
+  "actions": [
+    {
+      "name": "Checkout Repository",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-windows",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "git clone $BUDDY_REPO_URL .",
+        "git checkout $BUDDY_EXECUTION_REVISION"
+      ]
+    },
+    {
+      "name": "Setup Rust",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-windows",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "rustup update stable",
+        "rustup default stable",
+        "rustup target add x86_64-pc-windows-msvc"
+      ]
+    },
+    {
+      "name": "Install Dependencies",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-windows",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "yarn install --frozen-lockfile"
+      ]
+    },
+    {
+      "name": "Build Frontend",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-windows",
+      "docker_image_tag": "latest",
+      "environment_variables": [
+        {
+          "key": "VITE_APP_MODE",
+          "value": "kiosk"
+        },
+        {
+          "key": "VITE_USE_MOCK_DATA",
+          "value": "false"
+        },
+        {
+          "key": "VITE_API_URL",
+          "value": "$VITE_API_URL"
+        },
+        {
+          "key": "VITE_REFRESH_INTERVAL",
+          "value": "300000"
+        }
+      ],
+      "execute_commands": [
+        "yarn build"
+      ]
+    },
+    {
+      "name": "Build Tauri Windows",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-windows",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "yarn tauri build --target x86_64-pc-windows-msvc"
+      ]
+    },
+    {
+      "name": "Archive Artifacts",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-windows",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "New-Item -ItemType Directory -Force -Path artifacts",
+        "Copy-Item -Path 'src-tauri\\target\\release\\bundle\\*' -Destination 'artifacts\\' -Recurse -Force",
+        "Copy-Item -Path 'src-tauri\\target\\release\\proto-tauri.exe' -Destination 'artifacts\\' -Force"
+      ],
+      "artifact_paths": [
+        "artifacts/**/*"
+      ]
+    }
+  ]
+}
+

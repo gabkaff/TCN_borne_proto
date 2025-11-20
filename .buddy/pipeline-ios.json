@@ -1,0 +1,141 @@
+{
+  "name": "Build iOS",
+  "ref_name": "refs/heads/main",
+  "trigger_time": "ON_EVERY_PUSH",
+  "priority": "NORMAL",
+  "fail_on_prepare_env_warning": false,
+  "auto_clear_cache": false,
+  "environment_variables": [
+    {
+      "key": "VITE_APP_MODE",
+      "value": "ipad"
+    },
+    {
+      "key": "VITE_USE_MOCK_DATA",
+      "value": "false"
+    },
+    {
+      "key": "VITE_API_URL",
+      "value": "$VITE_API_URL"
+    },
+    {
+      "key": "APPLE_TEAM_ID",
+      "value": "$APPLE_TEAM_ID"
+    },
+    {
+      "key": "APPLE_CERTIFICATE_NAME",
+      "value": "$APPLE_CERTIFICATE_NAME"
+    },
+    {
+      "key": "APPLE_PROVISION_PROFILE_NAME",
+      "value": "$APPLE_PROVISION_PROFILE_NAME"
+    }
+  ],
+  "actions": [
+    {
+      "name": "Checkout Repository",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-macos",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "git clone $BUDDY_REPO_URL .",
+        "git checkout $BUDDY_EXECUTION_REVISION"
+      ]
+    },
+    {
+      "name": "Setup Rust iOS Targets",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-macos",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "rustup update stable",
+        "rustup default stable",
+        "rustup target add aarch64-apple-ios",
+        "rustup target add x86_64-apple-ios",
+        "rustup target add aarch64-apple-ios-sim"
+      ]
+    },
+    {
+      "name": "Install Node Dependencies",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-macos",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "yarn install --frozen-lockfile"
+      ]
+    },
+    {
+      "name": "Build Frontend",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-macos",
+      "docker_image_tag": "latest",
+      "environment_variables": [
+        {
+          "key": "VITE_APP_MODE",
+          "value": "ipad"
+        },
+        {
+          "key": "VITE_USE_MOCK_DATA",
+          "value": "false"
+        },
+        {
+          "key": "VITE_API_URL",
+          "value": "$VITE_API_URL"
+        }
+      ],
+      "execute_commands": [
+        "yarn build"
+      ]
+    },
+    {
+      "name": "Initialize iOS Project",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-macos",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "yarn tauri ios init || echo 'iOS project already initialized'"
+      ]
+    },
+    {
+      "name": "Build iOS App",
+      "type": "BUILD",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "docker_image_name": "buddy/docker-macos",
+      "docker_image_tag": "latest",
+      "execute_commands": [
+        "yarn tauri ios build"
+      ]
+    },
+    {
+      "name": "Code Sign and Export IPA",
+      "type": "NATIVE_BUILD_MAC_SIGN",
+      "trigger_time": "ON_EVERY_EXECUTION",
+      "working_directory": "/",
+      "export_location": "artifacts",
+      "distribution_method": "AD_HOC",
+      "property_list_source": "ACTION",
+      "property_list": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"><plist version=\"1.0\"><dict><key>method</key><string>ad-hoc</string><key>teamID</key><string>$APPLE_TEAM_ID</string></dict></plist>",
+      "certificates": [
+        "$APPLE_CERTIFICATE_NAME"
+      ],
+      "provision_profiles": [
+        "$APPLE_PROVISION_PROFILE_NAME"
+      ],
+      "artifact_paths": [
+        "artifacts/**/*.ipa"
+      ]
+    }
+  ]
+}
+
