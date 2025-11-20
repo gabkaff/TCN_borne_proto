@@ -8,16 +8,24 @@ import type { MediaAsset, ApiResponse, Block } from '../types/api.types';
 class AssetsService {
   private assetsDir: string | null = null;
   private enableCache: boolean;
+  private isTauriEnvironment: boolean;
 
   constructor() {
     this.enableCache = appConfig.enableCache;
+    // Vérifie si on est dans un environnement Tauri
+    this.isTauriEnvironment = typeof window !== 'undefined' && '__TAURI__' in window;
   }
 
   /**
    * Initialise le répertoire des assets
    */
   async init(): Promise<void> {
-    if (!this.enableCache) return;
+    if (!this.enableCache || !this.isTauriEnvironment) {
+      if (!this.isTauriEnvironment) {
+        console.log('⚠️ APIs Tauri non disponibles (navigateur). Mode assets désactivé.');
+      }
+      return;
+    }
 
     const appDir = await appDataDir();
     this.assetsDir = await join(appDir, ASSETS_DIR);
@@ -33,7 +41,7 @@ class AssetsService {
    * Télécharge et stocke tous les assets d'une réponse API
    */
   async downloadAllAssets(apiData: ApiResponse): Promise<ApiResponse> {
-    if (!this.enableCache) return apiData;
+    if (!this.enableCache || !this.isTauriEnvironment) return apiData;
 
     console.log('⬇️ Début du téléchargement des assets...');
     const downloadPromises: Promise<void>[] = [];
@@ -82,7 +90,7 @@ class AssetsService {
    * Télécharge un asset et le stocke localement
    */
   private async downloadAsset(asset: MediaAsset): Promise<void> {
-    if (!this.enableCache || !this.assetsDir) return;
+    if (!this.enableCache || !this.isTauriEnvironment || !this.assetsDir) return;
 
     try {
       // Vérifie si l'asset existe déjà
@@ -175,7 +183,7 @@ class AssetsService {
    * Nettoie tous les assets téléchargés
    */
   async clearAssets(): Promise<void> {
-    if (!this.enableCache || !this.assetsDir) return;
+    if (!this.enableCache || !this.isTauriEnvironment || !this.assetsDir) return;
 
     try {
       const dirExists = await exists(this.assetsDir);
