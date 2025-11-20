@@ -22,3 +22,29 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Tauri
+src-tauri/target
+
+# iOS/macOS
+src-tauri/gen/apple/
+*.xcworkspace
+xcuserdata/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Environment files (keep .env.example)
+.env.local
+.env.production.local

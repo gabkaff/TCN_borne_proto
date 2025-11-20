@@ -7,7 +7,13 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "build:windows": "tauri build --target x86_64-pc-windows-msvc",
+    "build:ios": "tauri ios build",
+    "dev:ios": "tauri ios dev",
+    "init:ios": "tauri ios init"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
